@@ -1,0 +1,30 @@
+server {
+
+    listen   443;
+    server_name localhost.dev;
+
+    ssl on;
+    ssl_certificate /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+
+    root /var/www/html;						# 更改目錄為 /var/www/html
+    access_log   /var/log/nginx/DevCrypt.access.log	;		# 加入 access log
+    index index.aspx index.php index.html index.htm ;		# 加入 index.aspx index.php
+    server_name DevCrypt;						# 設定 Server Name
+
+    location /
+    {								# 設定 aspx 使用 Port 方式
+        fastcgi_pass 127.0.0.1:9001;
+        include /etc/nginx/fastcgi_params;
+    }
+
+
+    location ~ \.php$
+    {								# 設定PHP 使用 sock 方式
+        try_files $uri =404;
+                fastcgi_pass unix:/var/run/php5-fpm.sock;
+                fastcgi_index index.php;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                include fastcgi_params;
+    }
+}
